@@ -1,5 +1,6 @@
 services:
   gateway-server:
+    image: ${DOCKER_USERNAME}/socketing:gateway-server
     container_name: gateway-server-app
     ports:
       - 8000:8000
