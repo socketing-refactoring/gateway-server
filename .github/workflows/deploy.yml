@@ -1,0 +1,90 @@
+name: Docker Build and Push
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21 (for Gradle build)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'liberica'
+
+      - name: Create application.yml from GitHub Secrets
+        run: |
+          echo "${{ secrets.APPLICATION_YML }}" > ./src/main/resources/application.yml
+
+      - name: Build with Gradle
+        run: |
+          chmod +x ./gradlew
+          ./gradlew clean build
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/socketing:gateway-server
+
+      - name: Setup SSH
+        run: |
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ec2.pem
+          sudo chmod 600 ec2.pem
+
+      - name: Set up WARP
+        uses: fscarmen/warp-on-actions@v1.1
+        with:
+          stack: dual
+
+      - name: testing ipv6 for command
+        run: |
+          curl -m 9 --ipv6 --verbose https://google.com
+
+      - name: Set up Server Home directory
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          protocol: tcp6
+          script: |
+            mkdir -p gateway-server/app/logs
+
+      - name: Copy docker-compose.yml to EC2
+        run: |
+          scp -6 -o StrictHostKeyChecking=no -i ec2.pem ./docker-compose.app.yml "${{ secrets.EC2_USER }}@[${{ secrets.EC2_HOST }}]:/home/ubuntu/gateway-server/app"
+          sudo rm -f ec2.pem
+
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          protocol: tcp6
+          script: |
+            cd gateway-server/app
+            echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" >> .env
+            mkdir -p logs
+            echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+            docker compose -f docker-compose.app.yml up -d --build
+            docker image prune -a -f

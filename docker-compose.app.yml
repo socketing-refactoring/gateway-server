@@ -1,0 +1,7 @@
+services:
+  gateway-server:
+    container_name: gateway-server-app
+    ports:
+      - 8000:8000
+    volumes:
+      - ./logs:/app/logs
