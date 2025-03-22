@@ -33,7 +33,7 @@
 
     <!-- dev 프로파일 로깅 설정 -->
     <springProfile name="dev">
-        <logger name="com.jeein.config.LoggingFilter" level="INFO" additivity="false">
+        <logger name="com.jeein.gateway.LoggingFilter" level="INFO" additivity="false">
             <appender-ref ref="API_LOG" />
         </logger>
 
@@ -44,11 +44,11 @@
 
     <!-- local 프로파일 로깅 설정 -->
     <springProfile name="local">
-        <logger name="com.jeein.config.LoggingFilter" level="INFO" additivity="false">
+        <logger name="com.jeein.gateway.LoggingFilter" level="INFO" additivity="false">
             <appender-ref ref="CONSOLE" />
         </logger>
 
-        <logger name="com.jeein.config" level="DEBUG" additivity="false">
+        <logger name="com.jeein.gateway" level="DEBUG" additivity="false">
             <appender-ref ref="CONSOLE" />
         </logger>
 

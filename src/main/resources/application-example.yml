@@ -3,10 +3,9 @@ spring:
     name: gateway-server
   profiles:
     active: "dev"
-
-  config:
-    import: ${SPRING_CLOUD_CONFIG_URI}
-  cloud:
-    config:
-      name: gateway-server
-      profile: dev
+#  config:
+#    import: ${SPRING_CLOUD_CONFIG_URI}
+#  cloud:
+#    config:
+#      name: gateway-server
+#      profile: dev

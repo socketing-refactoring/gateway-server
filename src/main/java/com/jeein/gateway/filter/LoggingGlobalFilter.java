@@ -1,5 +1,6 @@
 package com.jeein.gateway.filter;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -10,8 +11,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
-
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -19,8 +18,7 @@ import reactor.core.publisher.Mono;
 @Order(0)
 public class LoggingGlobalFilter implements GlobalFilter {
 
-    @Autowired
-    private RouteLocator routeLocator;
+    @Autowired private RouteLocator routeLocator;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -30,18 +28,27 @@ public class LoggingGlobalFilter implements GlobalFilter {
         String uri = request.getURI().toString();
         log.debug("Request URI: {}", uri);
 
-        request.getQueryParams().forEach((param, values) -> log.debug("Request Parameter: {} = {}", param, values));
-        request.getHeaders().forEach((header, values) -> log.debug("Request Header: {} = {}", header, values));
+        request.getQueryParams()
+                .forEach((param, values) -> log.debug("Request Parameter: {} = {}", param, values));
+        request.getHeaders()
+                .forEach((header, values) -> log.debug("Request Header: {} = {}", header, values));
 
-        return chain.filter(exchange).then(Mono.fromRunnable(() -> {
-            // Post Filter Logic
-            log.info("Response status code: {}", exchange.getResponse().getStatusCode());
+        return chain.filter(exchange)
+                .then(
+                        Mono.fromRunnable(
+                                () -> {
+                                    // Post Filter Logic
+                                    log.info(
+                                            "Response status code: {}",
+                                            exchange.getResponse().getStatusCode());
 
-            Route route = exchange.getAttribute(ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR);
-            if (route != null) {
-                log.info("Matched Route ID: {}", route.getId());
-                log.info("Matched Route URI: {}", route.getUri());
-            }
-        }));
+                                    Route route =
+                                            exchange.getAttribute(
+                                                    ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR);
+                                    if (route != null) {
+                                        log.info("Matched Route ID: {}", route.getId());
+                                        log.info("Matched Route URI: {}", route.getUri());
+                                    }
+                                }));
     }
 }

@@ -1,6 +1,5 @@
 server:
-  port:
-    8000
+  port: 8000
 
 spring:
   cloud:
@@ -10,15 +9,15 @@ spring:
           predicates:
             - Path=/auth/**
           uri: http://localhost:8010
-        - id: auth
+        - id: member
           predicates:
             - Path=/members/**
           uri: http://localhost:8081
-        - id: auth
+        - id: event
           predicates:
             - Path=/events/**
           uri: http://localhost:8082
-        - id: auth
+        - id: order
           predicates:
             - Path=/orders/**
           uri: http://localhost:8083

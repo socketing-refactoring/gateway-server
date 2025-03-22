@@ -1,0 +1,13 @@
+printWidth: 80
+useTabs: false
+semi: false
+insert_final_newline: true
+overrides:
+  - files: "*.md"
+    options:
+      proseWrap: "always"
+  - files:
+      - "*.yaml"
+      - "*.yml"
+    options:
+      tabWidth: 2
