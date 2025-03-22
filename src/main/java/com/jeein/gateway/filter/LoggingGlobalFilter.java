@@ -26,12 +26,12 @@ public class LoggingGlobalFilter implements GlobalFilter {
         ServerHttpRequest request = exchange.getRequest();
 
         String uri = request.getURI().toString();
-        log.debug("Request URI: {}", uri);
+        log.info("Request URI: {}", uri);
 
         request.getQueryParams()
-                .forEach((param, values) -> log.debug("Request Parameter: {} = {}", param, values));
+                .forEach((param, values) -> log.info("Request Parameter: {} = {}", param, values));
         request.getHeaders()
-                .forEach((header, values) -> log.debug("Request Header: {} = {}", header, values));
+                .forEach((header, values) -> log.info("Request Header: {} = {}", header, values));
 
         return chain.filter(exchange)
                 .then(
