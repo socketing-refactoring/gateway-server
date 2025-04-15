@@ -19,7 +19,7 @@
             <fileNamePattern>${LOG_PATH}/%d{yyyy-MM, aux}/api-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
-    </appender>
+    </appender>zz
 
     <!-- 일반 로그 파일 -->
     <appender name="GENERAL_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -44,16 +44,16 @@
 
     <!-- local 프로파일 로깅 설정 -->
     <springProfile name="local">
-        <logger name="com.jeein.gateway.filter.LoggingGlobalFilter" level="INFO" additivity="false">
-            <appender-ref ref="CONSOLE" />
+        <logger name="com.jeein.gateway.filter.LoggingGlobalFilter" level="DEBUG" additivity="false">
+            <appender-ref ref="API_LOG" />
         </logger>
 
         <logger name="com.jeein.gateway" level="DEBUG" additivity="false">
-            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="GENERAL_LOG" />
         </logger>
 
         <logger name="ROOT" level="INFO">
-            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="GENERAL_LOG" />
         </logger>
     </springProfile>
 

@@ -27,7 +27,7 @@ public class LoggingGlobalFilter implements GlobalFilter {
         ServerHttpRequest request = exchange.getRequest();
 
         String uri = request.getURI().toString();
-        log.info("Request URI: {}", uri);
+        log.info("Request Message");
 
         request.getQueryParams()
                 .forEach((param, values) -> log.info("Request Parameter: {} = {}", param, values));
