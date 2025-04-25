@@ -4,6 +4,10 @@ import com.jeein.gateway.exception.CustomJwtException;
 import com.jeein.gateway.exception.ErrorCode;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import java.security.KeyFactory;
+import java.security.PublicKey;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -15,14 +19,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.security.KeyFactory;
-import java.security.PublicKey;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
-
 @Slf4j
 @Component
-public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAuthenticationFilter.Config> {
+public class JwtAuthenticationFilter
+        extends AbstractGatewayFilterFactory<JwtAuthenticationFilter.Config> {
 
     private final PublicKey publicKey;
 
@@ -59,8 +59,7 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
         return keyFactory.generatePublic(keySpec);
     }
 
-    public static class Config {
-    }
+    public static class Config {}
 
     @Override
     public GatewayFilter apply(Config config) {
@@ -74,11 +73,12 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
             }
 
             try {
-                Claims claims = Jwts.parser()
-                        .verifyWith(publicKey)
-                        .build()
-                        .parseSignedClaims(token)
-                        .getPayload();
+                Claims claims =
+                        Jwts.parser()
+                                .verifyWith(publicKey)
+                                .build()
+                                .parseSignedClaims(token)
+                                .getPayload();
 
                 String memberId = claims.getSubject();
                 log.info("JWT 검증 성공: memberId={}", memberId);
@@ -102,9 +102,8 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
     }
 
     private ServerWebExchange setHeaders(ServerWebExchange exchange, String memberId) {
-        ServerHttpRequest modifiedRequest = exchange.getRequest().mutate()
-                .header("x-api-userid", memberId)
-                .build();
+        ServerHttpRequest modifiedRequest =
+                exchange.getRequest().mutate().header("x-api-userid", memberId).build();
 
         return exchange.mutate().request(modifiedRequest).build();
     }
